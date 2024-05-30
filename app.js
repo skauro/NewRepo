@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const feedsContainer = document.getElementById('feeds-container');
     const modal = document.getElementById('modal');
-    const modalContent = document.getElementById('article-content');
-    const closeModal = document.getElementsByClassName('close')[0];
+    const modalContent = document.getElementById('modal-body');
+    const closeModalButton = document.getElementsByClassName('close-button')[0];
 
     // Load initial RSS feed
     loadFeed('https://flipboard.com/@raimoseero/feed-nii8kd0sz.rss');
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.style.display = 'block';
     }
 
-    closeModal.onclick = function() {
+    closeModalButton.onclick = function() {
         modal.style.display = 'none';
     };
 
