@@ -1,113 +1,77 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const feedForm = document.getElementById('feed-form');
-    const feedUrlInput = document.getElementById('feed-url');
-    const articlesContainer = document.getElementById('articles');
-    const categoryFilter = document.getElementById('category-filter');
+    const feedsContainer = document.getElementById('feeds-container');
     const modal = document.getElementById('modal');
-    const modalBody = document.getElementById('modal-body');
-    const closeModalButton = document.querySelector('.close-button');
+    const modalContent = document.getElementById('article-content');
+    const closeModal = document.getElementsByClassName('close')[0];
 
-    let feeds = JSON.parse(localStorage.getItem('feeds')) || [];
+    // Load initial RSS feed
+    loadFeed('https://flipboard.com/@raimoseero/feed-nii8kd0sz.rss');
 
-    const fetchRSSFeed = async (url) => {
-        const response = await fetch(url);
-        const text = await response.text();
-        const parser = new DOMParser();
-        const xml = parser.parseFromString(text, 'application/xml');
+    function loadFeed(feedUrl) {
+        fetch(feedUrl)
+            .then(response => response.text())
+            .then(data => {
+                const parser = new DOMParser();
+                const xml = parser.parseFromString(data, 'application/xml');
+                displayArticles(xml);
+            })
+            .catch(error => console.error('Error fetching feed:', error));
+    }
+
+    function displayArticles(xml) {
         const items = xml.querySelectorAll('item');
-        const articles = [];
         items.forEach(item => {
             const title = item.querySelector('title').textContent;
             const link = item.querySelector('link').textContent;
             const description = item.querySelector('description').textContent;
-            const pubDate = new Date(item.querySelector('pubDate').textContent);
-            const category = item.querySelector('category') ? item.querySelector('category').textContent : 'Uncategorized';
-            const enclosure = item.querySelector('enclosure') ? item.querySelector('enclosure').getAttribute('url') : '';
-            articles.push({ title, link, description, pubDate, category, enclosure });
-        });
-        return articles;
-    };
+            const pubDate = item.querySelector('pubDate').textContent;
+            const categories = Array.from(item.querySelectorAll('category')).map(cat => cat.textContent).join(', ');
 
-    const renderArticles = (articles) => {
-        articlesContainer.innerHTML = '';
-        articles.sort((a, b) => b.pubDate - a.pubDate);
-        articles.forEach(article => {
             const articleElement = document.createElement('div');
-            articleElement.classList.add('article');
+            articleElement.classList.add('feed');
             articleElement.innerHTML = `
-                <h2>${article.title}</h2>
-                <p>${article.description}</p>
-                <img src="${article.enclosure}" alt="${article.title}">
-                <button class="read-more" data-url="${article.link}">Read more</button>
+                <h2>${title}</h2>
+                <p>${description}</p>
+                <p><strong>Published:</strong> ${pubDate}</p>
+                <p><strong>Categories:</strong> ${categories}</p>
+                <a href="${link}" target="_blank">Read more</a>
             `;
-            articlesContainer.appendChild(articleElement);
-        });
 
-        document.querySelectorAll('.read-more').forEach(button => {
-            button.addEventListener('click', async (e) => {
-                const url = e.target.dataset.url;
-                const response = await fetch('https://uptime-mercury-api.azurewebsites.net/webparser', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ url })
-                });
-                const data = await response.json();
-                modalBody.innerHTML = data.content;
-                modal.style.display = 'flex';
+            articleElement.addEventListener('click', () => {
+                fetchArticleContent(link);
             });
+
+            feedsContainer.appendChild(articleElement);
         });
-    };
+    }
 
-    const loadFeeds = async () => {
-        let allArticles = [];
-        for (let feed of feeds) {
-            const articles = await fetchRSSFeed(feed);
-            allArticles = [...allArticles, ...articles];
-        }
-        renderArticles(allArticles);
-    };
+    function fetchArticleContent(url) {
+        fetch('https://uptime-mercury-api.azurewebsites.net/webparser', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url })
+        })
+            .then(response => response.json())
+            .then(data => {
+                displayArticleContent(data);
+            })
+            .catch(error => console.error('Error fetching article content:', error));
+    }
 
-    const updateCategoryFilter = () => {
-        const categories = new Set();
-        document.querySelectorAll('.article').forEach(article => {
-            const category = article.dataset.category;
-            categories.add(category);
-        });
-        categoryFilter.innerHTML = '<option value="all">All</option>';
-        categories.forEach(category => {
-            const option = document.createElement('option');
-            option.value = category;
-            option.textContent = category;
-            categoryFilter.appendChild(option);
-        });
-    };
+    function displayArticleContent(data) {
+        modalContent.innerHTML = data.content;
+        modal.style.display = 'block';
+    }
 
-    feedForm.addEventListener('submit', (e) => {
-        e.preventDefault();
-        const feedUrl = feedUrlInput.value;
-        feeds.push(feedUrl);
-        localStorage.setItem('feeds', JSON.stringify(feeds));
-        feedUrlInput.value = '';
-        loadFeeds();
-    });
-
-    categoryFilter.addEventListener('change', (e) => {
-        const category = e.target.value;
-        const articles = document.querySelectorAll('.article');
-        articles.forEach(article => {
-            if (category === 'all' || article.dataset.category === category) {
-                article.style.display = 'block';
-            } else {
-                article.style.display = 'none';
-            }
-        });
-    });
-
-    closeModalButton.addEventListener('click', () => {
+    closeModal.onclick = function() {
         modal.style.display = 'none';
-    });
+    };
 
-    loadFeeds();
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
 });

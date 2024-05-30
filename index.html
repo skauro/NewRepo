@@ -9,26 +9,17 @@
 <body>
     <header>
         <h1>Lolo v5</h1>
-        <form id="feed-form">
-            <input type="url" id="feed-url" placeholder="Add RSS feed URL" required>
-            <button type="submit">Add Feed</button>
-        </form>
+        <button id="add-feed">Add Feed</button>
     </header>
     <main>
-        <div id="filters">
-            <label for="category-filter">Filter by category:</label>
-            <select id="category-filter">
-                <option value="all">All</option>
-            </select>
-        </div>
-        <div id="articles"></div>
+        <div id="feeds-container"></div>
     </main>
     <div id="modal" class="modal">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <div id="modal-body"></div>
+            <span class="close">&times;</span>
+            <div id="article-content"></div>
         </div>
     </div>
-    <script src="script.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
