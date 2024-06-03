@@ -30,8 +30,12 @@ button {
     border: 1px solid #ddd;
     margin: 0.5rem;
     padding: 0.5rem;
-    width: calc(33.333% - 1rem);
+    width: calc(45% - 1rem);
 }
+    .feed img {
+        max-width: calc(66.67% - 1rem); /* 2/3 of feed container width */
+        height: auto; /* Maintain aspect ratio */
+    }
 
 .modal {
     display: none;
