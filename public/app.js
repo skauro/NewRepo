@@ -30,14 +30,29 @@ document.addEventListener('DOMContentLoaded', () => {
             const pubDate = item.querySelector('pubDate').textContent;
             const categories = Array.from(item.querySelectorAll('category')).map(cat => cat.textContent).join(', ');
 
+            // Check if there is media content
+            const mediaContent = item.querySelector('media\\:content');
+            let mediaDisplay = '';
+            if (mediaContent) {
+                const mediaUrl = mediaContent.getAttribute('url');
+                const mediaType = mediaContent.getAttribute('type');
+                if (mediaType.startsWith('video')) {
+                    mediaDisplay = `<video src="${mediaUrl}" controls style="max-width: 100%; height: auto;"></video>`;
+                } else {
+                    mediaDisplay = `<img src="${mediaUrl}" alt="Media" style="max-width: 100%; height: auto;">`;
+                }
+            }
+
             const articleElement = document.createElement('div');
             articleElement.classList.add('feed');
             articleElement.innerHTML = `
                 <h2>${title}</h2>
+                ${mediaDisplay}
                 <p>${description}</p>
                 <p><strong>Published:</strong> ${pubDate}</p>
                 <p><strong>Categories:</strong> ${categories}</p>
                 <a href="${link}" target="_blank">Read more</a>
+
             `;
 
             articleElement.addEventListener('click', () => {
