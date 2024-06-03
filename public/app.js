@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
     async function loadFeed() {
         try {
             const response = await fetch('/proxy?url=https://flipboard.com/@raimoseero/feed-nii8kd0sz.rss');
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
             const data = await response.text();
             const parser = new DOMParser();
             const xml = parser.parseFromString(data, "application/xml");
