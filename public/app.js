@@ -4,19 +4,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const modalContent = document.getElementById('modal-body');
     const closeModalButton = document.getElementsByClassName('close-button')[0];
 
-    // Load initial RSS feed
-    loadFeed('https://flipboard.com/@raimoseero/feed-nii8kd0sz.rss');
-
-    function loadFeed(feedUrl) {
-        fetch(feedUrl)
-            .then(response => response.text())
-            .then(data => {
-                const parser = new DOMParser();
-                const xml = parser.parseFromString(data, 'application/xml');
-                displayArticles(xml);
-            })
-            .catch(error => console.error('Error fetching feed:', error));
+    async function loadFeed() {
+        try {
+            const response = await fetch('/proxy?url=https://flipboard.com/@raimoseero/feed-nii8kd0sz.rss');
+            const data = await response.text();
+            const parser = new DOMParser();
+            const xml = parser.parseFromString(data, "application/xml");
+            displayArticles(xml);
+        } catch (error) {
+            console.error('Error fetching feed:', error);
+        }
     }
+
+    loadFeed();
 
     function displayArticles(xml) {
         const items = xml.querySelectorAll('item');
@@ -65,11 +65,11 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.style.display = 'block';
     }
 
-    closeModalButton.onclick = function() {
+    closeModalButton.onclick = function () {
         modal.style.display = 'none';
     };
 
-    window.onclick = function(event) {
+    window.onclick = function (event) {
         if (event.target === modal) {
             modal.style.display = 'none';
         }
