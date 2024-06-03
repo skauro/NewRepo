@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadFeed() {
         try {
-            const response = await fetch('/proxy?url=https://flipboard.com/@raimoseero/feed-nii8kd0sz.rss');
+            const response = await fetch('https://api.allorigins.win/raw?url=https://flipboard.com/@raimoseero/feed-nii8kd0sz.rss');
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
@@ -31,11 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const categories = Array.from(item.querySelectorAll('category')).map(cat => cat.textContent).join(', ');
             const mediaContent = item.querySelector('content');
             const mediaUrl = mediaContent ? mediaContent.getAttribute('url') : ''; // Extract URL attribute
-           
+
 
             const articleElement = document.createElement('div');
             articleElement.classList.add('feed');
-            
+
             articleElement.innerHTML = `
                 <h2>${title}</h2>
                 <p><img src="${mediaUrl}" alt="Image" width="550px" height="300px"></p>
